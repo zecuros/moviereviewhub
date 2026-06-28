@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{3AFB33EA-07BE-4548-9F6A-2060B2516278}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "services\AuthService\AuthService.csproj", "{2E4C49AB-1142-4282-93BE-72B2BAC79D27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieService", "services\MovieService\MovieService.csproj", "{7485F759-A5E9-4C2B-9603-E40DCF9DFE4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReviewService", "services\ReviewService\ReviewService.csproj", "{B62C8847-DD8A-4E53-BB39-6D2A12466EAE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchlistService", "services\WatchlistService\WatchlistService.csproj", "{2A0E063C-AA53-4942-AE4F-462963655CC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService", "services\NotificationService\NotificationService.csproj", "{DA5C50B4-1CAB-421B-8735-E8A0C93411C2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gateway", "gateway", "{E067FB04-C922-480A-B6F4-08ABAD89D7AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGateway", "gateway\ApiGateway\ApiGateway.csproj", "{12EB5882-34C9-453E-9D3B-3D51050D5977}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2E4C49AB-1142-4282-93BE-72B2BAC79D27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E4C49AB-1142-4282-93BE-72B2BAC79D27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E4C49AB-1142-4282-93BE-72B2BAC79D27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E4C49AB-1142-4282-93BE-72B2BAC79D27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7485F759-A5E9-4C2B-9603-E40DCF9DFE4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7485F759-A5E9-4C2B-9603-E40DCF9DFE4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7485F759-A5E9-4C2B-9603-E40DCF9DFE4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7485F759-A5E9-4C2B-9603-E40DCF9DFE4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B62C8847-DD8A-4E53-BB39-6D2A12466EAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B62C8847-DD8A-4E53-BB39-6D2A12466EAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B62C8847-DD8A-4E53-BB39-6D2A12466EAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B62C8847-DD8A-4E53-BB39-6D2A12466EAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A0E063C-AA53-4942-AE4F-462963655CC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A0E063C-AA53-4942-AE4F-462963655CC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A0E063C-AA53-4942-AE4F-462963655CC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A0E063C-AA53-4942-AE4F-462963655CC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA5C50B4-1CAB-421B-8735-E8A0C93411C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA5C50B4-1CAB-421B-8735-E8A0C93411C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA5C50B4-1CAB-421B-8735-E8A0C93411C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA5C50B4-1CAB-421B-8735-E8A0C93411C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12EB5882-34C9-453E-9D3B-3D51050D5977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12EB5882-34C9-453E-9D3B-3D51050D5977}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12EB5882-34C9-453E-9D3B-3D51050D5977}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12EB5882-34C9-453E-9D3B-3D51050D5977}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2E4C49AB-1142-4282-93BE-72B2BAC79D27} = {3AFB33EA-07BE-4548-9F6A-2060B2516278}
+		{7485F759-A5E9-4C2B-9603-E40DCF9DFE4F} = {3AFB33EA-07BE-4548-9F6A-2060B2516278}
+		{B62C8847-DD8A-4E53-BB39-6D2A12466EAE} = {3AFB33EA-07BE-4548-9F6A-2060B2516278}
+		{2A0E063C-AA53-4942-AE4F-462963655CC2} = {3AFB33EA-07BE-4548-9F6A-2060B2516278}
+		{DA5C50B4-1CAB-421B-8735-E8A0C93411C2} = {3AFB33EA-07BE-4548-9F6A-2060B2516278}
+		{12EB5882-34C9-453E-9D3B-3D51050D5977} = {E067FB04-C922-480A-B6F4-08ABAD89D7AB}
+	EndGlobalSection
+EndGlobal
