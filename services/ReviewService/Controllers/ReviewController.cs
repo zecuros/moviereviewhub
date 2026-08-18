@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReviewService.Data;
+using ReviewService.Messaging;
 using ReviewService.Models;
 
 namespace ReviewService.Controllers;
@@ -10,10 +11,14 @@ namespace ReviewService.Controllers;
 public class ReviewController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly RabbitMqPublisher _rabbitMqPublisher;
 
-    public ReviewController(ApplicationDbContext context)
+    public ReviewController(
+        ApplicationDbContext context,
+        RabbitMqPublisher rabbitMqPublisher)
     {
         _context = context;
+        _rabbitMqPublisher = rabbitMqPublisher;
     }
 
     [HttpGet("movie/{movieId}")]
@@ -60,7 +65,21 @@ public class ReviewController : ControllerBase
         _context.Reviews.Add(review);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetByMovie), new { movieId = review.MovieId }, review);
+        var reviewCreatedEvent = new ReviewCreatedEvent
+        {
+            ReviewId = review.Id,
+            MovieId = review.MovieId,
+            UserId = review.UserId,
+            Username = review.Username,
+            Rating = review.Rating
+        };
+
+        await _rabbitMqPublisher.PublishReviewCreatedAsync(reviewCreatedEvent);
+
+        return CreatedAtAction(
+            nameof(GetByMovie),
+            new { movieId = review.MovieId },
+            review);
     }
 
     [HttpDelete("{id}")]
