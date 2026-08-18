@@ -1,0 +1,112 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: moviereviewhub-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: MovieReviewHub
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  authservice:
+    build:
+      context: .
+      dockerfile: services/AuthService/Dockerfile
+    container_name: authservice
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=AuthDb;Username=postgres;Password=postgres
+    ports:
+      - "5001:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  movieservice:
+    build:
+      context: .
+      dockerfile: services/MovieService/Dockerfile
+    container_name: movieservice
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=MovieDb;Username=postgres;Password=postgres
+    ports:
+      - "5002:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  reviewservice:
+    build:
+      context: .
+      dockerfile: services/ReviewService/Dockerfile
+    container_name: reviewservice
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=ReviewDb;Username=postgres;Password=postgres
+    ports:
+      - "5003:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  watchlistservice:
+    build:
+      context: .
+      dockerfile: services/WatchlistService/Dockerfile
+    container_name: watchlistservice
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=WatchlistDb;Username=postgres;Password=postgres
+    ports:
+      - "5004:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  notificationservice:
+    build:
+      context: .
+      dockerfile: services/NotificationService/Dockerfile
+    container_name: notificationservice
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=NotificationDb;Username=postgres;Password=postgres
+    ports:
+      - "5005:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  apigateway:
+    build:
+      context: .
+      dockerfile: gateway/ApiGateway/Dockerfile
+    container_name: apigateway
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ReverseProxy__Clusters__auth-cluster__Destinations__auth-destination__Address: http://authservice:8080/
+      ReverseProxy__Clusters__movie-cluster__Destinations__movie-destination__Address: http://movieservice:8080/
+      ReverseProxy__Clusters__review-cluster__Destinations__review-destination__Address: http://reviewservice:8080/
+      ReverseProxy__Clusters__watchlist-cluster__Destinations__watchlist-destination__Address: http://watchlistservice:8080/
+      ReverseProxy__Clusters__notification-cluster__Destinations__notification-destination__Address: http://notificationservice:8080/
+    ports:
+      - "5000:8080"
+    depends_on:
+      - authservice
+      - movieservice
+      - reviewservice
+      - watchlistservice
+      - notificationservice
+
+volumes:
+  postgres_data:
