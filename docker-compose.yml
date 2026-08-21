@@ -87,11 +87,14 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=WatchlistDb;Username=postgres;Password=postgres
+      MovieService__BaseUrl: http://movieservice:8080/
     ports:
       - "5004:8080"
     depends_on:
       postgres:
         condition: service_healthy
+      movieservice:
+        condition: service_started
 
   notificationservice:
     build:
