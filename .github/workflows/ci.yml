@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test --no-build --configuration Release --verbosity normal
+
+      - name: Publish AuthService
+        run: dotnet publish services/AuthService/AuthService.csproj -c Release -o artifacts/AuthService
+
+      - name: Publish MovieService
+        run: dotnet publish services/MovieService/MovieService.csproj -c Release -o artifacts/MovieService
+
+      - name: Publish ReviewService
+        run: dotnet publish services/ReviewService/ReviewService.csproj -c Release -o artifacts/ReviewService
+
+      - name: Publish WatchlistService
+        run: dotnet publish services/WatchlistService/WatchlistService.csproj -c Release -o artifacts/WatchlistService
+
+      - name: Publish NotificationService
+        run: dotnet publish services/NotificationService/NotificationService.csproj -c Release -o artifacts/NotificationService
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: moviereviewhub-services
+          path: artifacts/
+
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker images
+        run: docker compose build
