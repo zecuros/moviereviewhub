@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reactive.Threading.Tasks;
 using WatchlistService.Data;
 using WatchlistService.Models;
+using WatchlistService.Services;
 
 namespace WatchlistService.Controllers;
 
@@ -10,10 +12,14 @@ namespace WatchlistService.Controllers;
 public class WatchlistController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly MovieReactiveClient _movieClient;
 
-    public WatchlistController(ApplicationDbContext context)
+    public WatchlistController(
+        ApplicationDbContext context,
+        MovieReactiveClient movieClient)
     {
         _context = context;
+        _movieClient = movieClient;
     }
 
     [HttpGet("user/{userId}")]
@@ -29,10 +35,18 @@ public class WatchlistController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<WatchlistItem>> Add(WatchlistItem item)
     {
-        var exists = await _context.WatchlistItems.AnyAsync(w =>
-            w.UserId == item.UserId && w.MovieId == item.MovieId);
+        var movieExists = await _movieClient
+            .MovieExists(item.MovieId)
+            .ToTask();
 
-        if (exists)
+        if (!movieExists)
+            return BadRequest("Movie does not exist.");
+
+        var alreadyExists = await _context.WatchlistItems.AnyAsync(w =>
+            w.UserId == item.UserId &&
+            w.MovieId == item.MovieId);
+
+        if (alreadyExists)
             return BadRequest("Movie already exists in user's watchlist.");
 
         item.AddedAt = DateTime.UtcNow;
