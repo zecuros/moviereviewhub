@@ -29,6 +29,26 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
+      - name: Start application
+        run: docker compose up -d --build
+
+      - name: Wait for API Gateway
+        run: |
+          echo "Waiting for API Gateway..."
+          for i in {1..30}; do
+            if curl --fail http://localhost:5000/movies; then
+              echo "API Gateway is ready."
+              exit 0
+            fi
+            echo "Waiting..."
+            sleep 5
+          done
+
+          echo "API Gateway did not become ready."
+          docker compose ps
+          docker compose logs
+          exit 1
+
       - name: Run tests
         run: dotnet test --no-build --configuration Release --verbosity normal
 
@@ -52,6 +72,10 @@ jobs:
         with:
           name: moviereviewhub-services
           path: artifacts/
+
+      - name: Stop application
+        if: always()
+        run: docker compose down -v
 
   docker-build:
     runs-on: ubuntu-latest
