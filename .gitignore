@@ -10,3 +10,5 @@ appsettings.Development.json
 .env
 .env.*
 !.env.example
+
+TestResults/

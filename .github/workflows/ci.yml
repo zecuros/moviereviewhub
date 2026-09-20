@@ -40,16 +40,10 @@ jobs:
           /o:"zecuros"
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
           /d:sonar.host.url="https://sonarcloud.io"
+          /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.opencover.xml"
 
       - name: Build
         run: dotnet build --no-restore --configuration Release
-
-      - name: End SonarQube analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: >
-          dotnet sonarscanner end
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: Generate ephemeral demo credentials
         shell: bash
@@ -82,7 +76,27 @@ jobs:
           exit 1
 
       - name: Run tests
-        run: dotnet test --no-build --configuration Release --verbosity normal
+        run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverage.runsettings --results-directory TestResults
+
+      - name: Check coverage reports exist
+        shell: bash
+        run: |
+          report=$(find TestResults -name coverage.opencover.xml -print -quit)
+          test -n "$report" || { echo "No OpenCover report was generated"; exit 1; }
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-opencover
+          path: TestResults/**/coverage.opencover.xml
+          if-no-files-found: error
+
+      - name: End SonarQube analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >
+          dotnet sonarscanner end
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: Verify observability
         shell: pwsh

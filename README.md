@@ -96,3 +96,28 @@ The runner must stay online and its checkout path must remain stable because Com
 6. Open the trace URL printed by the script in Jaeger. Expand HTTP and RabbitMQ producer/consumer spans.
 7. In Prometheus, query `sum by (service_name) (rate(http_server_request_duration_seconds_count[1m]))`. Open the MovieReviewHub dashboard in Grafana. Repeat requests to produce traffic and allow a few scrape intervals.
 8. Show correlated JSON logs with `docker compose logs`, then the GitHub Actions CI run and SonarQube Cloud analysis. Explain the separate opt-in CD workflow and its tested-commit gate.
+
+## Coverage and shared observability
+
+All six applications use `shared/MovieReviewHub.Observability` for their existing
+OpenTelemetry registration, JSON request logging and `/health` response. The same
+project owns the RabbitMQ W3C trace-header encoding and decoding. Service names,
+exporter endpoints, span names and public endpoints remain unchanged.
+
+With the Compose stack running, run the same coverage command as CI:
+
+```powershell
+dotnet build --configuration Release
+dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --settings coverage.runsettings --results-directory TestResults
+```
+
+Coverlet writes `TestResults/<run-id>/coverage.opencover.xml`. CI uploads these
+reports and passes their path to `sonar.cs.opencover.reportsPaths`; the scanner's
+end step runs after testing. No application coverage or duplication exclusions
+are configured. The Docker E2E tests validate communication, but the collector
+does not instrument processes inside Docker. The in-process observability tests
+exercise the shared application code and actual service startup, including HTTP instrumentation, error
+logging and RabbitMQ trace propagation, to produce real application coverage.
+
+Run `scripts/Verify-Observability.ps1` after rebuilding the stack to verify the
+exported traces, metrics, dashboard queries and asynchronous notification flow.

@@ -25,6 +25,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Tests", "tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E2E.Tests", "tests\E2E.Tests\E2E.Tests.csproj", "{4B948D2A-7612-40CD-9676-48AD40642252}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{3AAED573-3384-4073-9FD3-E1632F4C1F13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieReviewHub.Observability", "shared\MovieReviewHub.Observability\MovieReviewHub.Observability.csproj", "{E4953899-7019-4619-84E6-220F937A0581}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Observability.Tests", "tests\Observability.Tests\Observability.Tests.csproj", "{DBEFC9B5-136B-4C40-87B3-B64902495CB3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +69,14 @@ Global
 		{4B948D2A-7612-40CD-9676-48AD40642252}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B948D2A-7612-40CD-9676-48AD40642252}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B948D2A-7612-40CD-9676-48AD40642252}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4953899-7019-4619-84E6-220F937A0581}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4953899-7019-4619-84E6-220F937A0581}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4953899-7019-4619-84E6-220F937A0581}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4953899-7019-4619-84E6-220F937A0581}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBEFC9B5-136B-4C40-87B3-B64902495CB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBEFC9B5-136B-4C40-87B3-B64902495CB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBEFC9B5-136B-4C40-87B3-B64902495CB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBEFC9B5-136B-4C40-87B3-B64902495CB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,5 +90,7 @@ Global
 		{12EB5882-34C9-453E-9D3B-3D51050D5977} = {E067FB04-C922-480A-B6F4-08ABAD89D7AB}
 		{81227B14-E998-4740-B8CC-20D36B95A3A9} = {ACC2F2B6-7795-4AEE-8B2B-6E1945145044}
 		{4B948D2A-7612-40CD-9676-48AD40642252} = {ACC2F2B6-7795-4AEE-8B2B-6E1945145044}
+		{E4953899-7019-4619-84E6-220F937A0581} = {3AAED573-3384-4073-9FD3-E1632F4C1F13}
+		{DBEFC9B5-136B-4C40-87B3-B64902495CB3} = {ACC2F2B6-7795-4AEE-8B2B-6E1945145044}
 	EndGlobalSection
 EndGlobal
