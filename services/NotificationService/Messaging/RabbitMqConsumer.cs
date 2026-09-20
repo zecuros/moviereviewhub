@@ -1,4 +1,6 @@
-﻿using NotificationService.Data;
+using MovieReviewHub.Observability;
+using System.Diagnostics;
+using NotificationService.Data;
 using NotificationService.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -53,6 +55,8 @@ public class RabbitMqConsumer : BackgroundService
 
         consumer.ReceivedAsync += async (_, eventArgs) =>
         {
+            using var activity = MessagingTrace.StartProcess(eventArgs.BasicProperties.Headers);
+            using var logScope = _logger.BeginScope(new Dictionary<string, object> { ["Service"] = "NotificationService" });
             try
             {
                 var body = eventArgs.Body.ToArray();
@@ -100,6 +104,7 @@ public class RabbitMqConsumer : BackgroundService
             }
             catch (Exception ex)
             {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                 _logger.LogError(
                     ex,
                     "Error while processing RabbitMQ message.");

@@ -1,8 +1,11 @@
+using MovieReviewHub.Observability;
+
 using Microsoft.EntityFrameworkCore;
 using WatchlistService.Data;
 using WatchlistService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddMovieReviewHubObservability("WatchlistService");
 
 builder.Services.AddControllers();
 
@@ -23,6 +26,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseMovieReviewHubObservability("WatchlistService");
 
 using (var scope = app.Services.CreateScope())
 {

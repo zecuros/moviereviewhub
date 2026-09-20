@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s
+scrape_configs:
+  # All six applications export OTLP metrics here, identified by service_name.
+  - job_name: moviereviewhub
+    static_configs:
+      - targets: ["otel-collector:8889"]

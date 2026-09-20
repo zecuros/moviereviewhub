@@ -1,3 +1,5 @@
+using MovieReviewHub.Observability;
+
 using AuthService.Data;
 using Microsoft.EntityFrameworkCore;
 using AuthService.Services;
@@ -7,6 +9,7 @@ using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddMovieReviewHubObservability("AuthService");
 
 builder.Services.AddControllers();
 
@@ -48,6 +51,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
+app.UseMovieReviewHubObservability("AuthService");
 
 using (var scope = app.Services.CreateScope())
 {

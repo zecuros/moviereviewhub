@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.16" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.16" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+    <ProjectReference Include="../../shared/MovieReviewHub.Observability/MovieReviewHub.Observability.csproj" />
+    <ProjectReference Include="../../gateway/ApiGateway/ApiGateway.csproj" />
+    <ProjectReference Include="../../services/AuthService/AuthService.csproj" />
+    <ProjectReference Include="../../services/MovieService/MovieService.csproj" />
+    <ProjectReference Include="../../services/ReviewService/ReviewService.csproj" />
+    <ProjectReference Include="../../services/WatchlistService/WatchlistService.csproj" />
+    <ProjectReference Include="../../services/NotificationService/NotificationService.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

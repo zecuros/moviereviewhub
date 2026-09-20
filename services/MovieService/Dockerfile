@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["services/MovieService/MovieService.csproj", "services/MovieService/"]
+COPY ["shared/MovieReviewHub.Observability/MovieReviewHub.Observability.csproj", "shared/MovieReviewHub.Observability/"]
 RUN dotnet restore "services/MovieService/MovieService.csproj"
 
 COPY . .

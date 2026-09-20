@@ -1,7 +1,10 @@
+using MovieReviewHub.Observability;
+
 using Microsoft.EntityFrameworkCore;
 using MovieService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddMovieReviewHubObservability("MovieService");
 
 builder.Services.AddControllers();
 
@@ -12,6 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseMovieReviewHubObservability("MovieService");
 
 using (var scope = app.Services.CreateScope())
 {

@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["services/AuthService/AuthService.csproj", "services/AuthService/"]
+COPY ["shared/MovieReviewHub.Observability/MovieReviewHub.Observability.csproj", "shared/MovieReviewHub.Observability/"]
 RUN dotnet restore "services/AuthService/AuthService.csproj"
 
 COPY . .

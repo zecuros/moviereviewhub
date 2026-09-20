@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+using MovieReviewHub.Observability;
+using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
 
@@ -17,6 +18,7 @@ public class RabbitMqPublisher
 
     public async Task PublishReviewCreatedAsync(ReviewCreatedEvent reviewEvent)
     {
+        using var activity = MessagingTrace.StartPublish();
         var factory = new ConnectionFactory
         {
             HostName = _configuration["RabbitMq:Host"] ?? "localhost",
@@ -37,9 +39,13 @@ public class RabbitMqPublisher
         var json = JsonSerializer.Serialize(reviewEvent);
         var body = Encoding.UTF8.GetBytes(json);
 
+        var properties = new BasicProperties { Headers = MessagingTrace.CreateHeaders() };
+
         await channel.BasicPublishAsync(
             exchange: string.Empty,
             routingKey: QueueName,
+            mandatory: false,
+            basicProperties: properties,
             body: body
         );
     }

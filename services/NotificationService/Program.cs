@@ -1,8 +1,11 @@
+using MovieReviewHub.Observability;
+
 using Microsoft.EntityFrameworkCore;
 using NotificationService.Data;
 using NotificationService.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddMovieReviewHubObservability("NotificationService");
 
 builder.Services.AddControllers();
 
@@ -16,6 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseMovieReviewHubObservability("NotificationService");
 
 using (var scope = app.Services.CreateScope())
 {
