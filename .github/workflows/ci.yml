@@ -51,6 +51,16 @@ jobs:
           dotnet sonarscanner end
           /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
+      - name: Generate ephemeral demo credentials
+        shell: bash
+        run: |
+          jwt=$(openssl rand -hex 48)
+          grafana=$(openssl rand -hex 24)
+          echo "::add-mask::$jwt"
+          echo "::add-mask::$grafana"
+          echo "JWT_KEY=$jwt" >> "$GITHUB_ENV"
+          echo "GRAFANA_ADMIN_PASSWORD=$grafana" >> "$GITHUB_ENV"
+
       - name: Start application
         run: docker compose up -d --build
 
@@ -73,6 +83,10 @@ jobs:
 
       - name: Run tests
         run: dotnet test --no-build --configuration Release --verbosity normal
+
+      - name: Verify observability
+        shell: pwsh
+        run: ./scripts/Verify-Observability.ps1
 
       - name: Publish AuthService
         run: dotnet publish services/AuthService/AuthService.csproj -c Release -o artifacts/AuthService
@@ -105,6 +119,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Generate ephemeral demo credentials
+        shell: bash
+        run: |
+          jwt=$(openssl rand -hex 48)
+          grafana=$(openssl rand -hex 24)
+          echo "::add-mask::$jwt"
+          echo "::add-mask::$grafana"
+          echo "JWT_KEY=$jwt" >> "$GITHUB_ENV"
+          echo "GRAFANA_ADMIN_PASSWORD=$grafana" >> "$GITHUB_ENV"
 
       - name: Build Docker images
         run: docker compose build

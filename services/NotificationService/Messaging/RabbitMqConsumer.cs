@@ -1,4 +1,5 @@
-﻿using NotificationService.Data;
+using System.Diagnostics;
+using NotificationService.Data;
 using NotificationService.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -9,6 +10,7 @@ namespace NotificationService.Messaging;
 
 public class RabbitMqConsumer : BackgroundService
 {
+    private static readonly ActivitySource ActivitySource = new("MovieReviewHub.Messaging");
     private const string QueueName = "review-created";
 
     private readonly IConfiguration _configuration;
@@ -53,6 +55,14 @@ public class RabbitMqConsumer : BackgroundService
 
         consumer.ReceivedAsync += async (_, eventArgs) =>
         {
+            string? ReadHeader(string name) =>
+                eventArgs.BasicProperties.Headers?.TryGetValue(name, out var value) == true
+                    ? value is byte[] bytes ? Encoding.UTF8.GetString(bytes) : value?.ToString()
+                    : null;
+            ActivityContext.TryParse(ReadHeader("traceparent"), ReadHeader("tracestate"),
+                isRemote: true, out var parent);
+            using var activity = ActivitySource.StartActivity("review-created process", ActivityKind.Consumer, parent);
+            using var logScope = _logger.BeginScope(new Dictionary<string, object> { ["Service"] = "NotificationService" });
             try
             {
                 var body = eventArgs.Body.ToArray();
@@ -100,6 +110,7 @@ public class RabbitMqConsumer : BackgroundService
             }
             catch (Exception ex)
             {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                 _logger.LogError(
                     ex,
                     "Error while processing RabbitMQ message.");

@@ -7,3 +7,6 @@ obj/
 *.sln.docstates
 
 appsettings.Development.json
+.env
+.env.*
+!.env.example

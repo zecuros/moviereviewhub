@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "uid": "moviereviewhub",
+  "schemaVersion": 41,
+  "panels": [
+    {
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (service_name) (rate(http_server_request_duration_seconds_count[1m]))",
+          "refId": "A",
+          "legendFormat": "{{service_name}}"
+        }
+      ],
+      "id": 1,
+      "fieldConfig": {
+        "overrides": [],
+        "defaults": {
+          "min": 0,
+          "unit": "reqps"
+        }
+      },
+      "title": "Requests per second",
+      "gridPos": {
+        "x": 0,
+        "w": 24,
+        "h": 8,
+        "y": 0
+      },
+      "options": {
+        "legend": {
+          "placement": "bottom",
+          "displayMode": "list"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (service_name, le) (rate(http_server_request_duration_seconds_bucket[1m])))",
+          "refId": "A",
+          "legendFormat": "{{service_name}}"
+        }
+      ],
+      "id": 2,
+      "fieldConfig": {
+        "overrides": [],
+        "defaults": {
+          "min": 0,
+          "unit": "s"
+        }
+      },
+      "title": "95th percentile request latency",
+      "gridPos": {
+        "x": 0,
+        "w": 24,
+        "h": 8,
+        "y": 8
+      },
+      "options": {
+        "legend": {
+          "placement": "bottom",
+          "displayMode": "list"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "100 * ((sum by (service_name) (rate(http_server_request_duration_seconds_count{http_response_status_code=~\"5..\"}[1m])) or on(service_name) (0 * sum by (service_name) (rate(http_server_request_duration_seconds_count[1m])))) / clamp_min(sum by (service_name) (rate(http_server_request_duration_seconds_count[1m])), 0.000001))",
+          "refId": "A",
+          "legendFormat": "{{service_name}}"
+        }
+      ],
+      "id": 3,
+      "fieldConfig": {
+        "overrides": [],
+        "defaults": {
+          "min": 0,
+          "unit": "percent"
+        }
+      },
+      "title": "Server errors (%)",
+      "gridPos": {
+        "x": 0,
+        "w": 24,
+        "h": 8,
+        "y": 16
+      },
+      "options": {
+        "legend": {
+          "placement": "bottom",
+          "displayMode": "list"
+        }
+      }
+    }
+  ],
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "title": "MovieReviewHub"
+}

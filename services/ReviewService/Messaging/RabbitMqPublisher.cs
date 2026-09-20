@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+using System.Diagnostics;
+using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
 
@@ -6,6 +7,7 @@ namespace ReviewService.Messaging;
 
 public class RabbitMqPublisher
 {
+    private static readonly ActivitySource ActivitySource = new("MovieReviewHub.Messaging");
     private const string QueueName = "review-created";
 
     private readonly IConfiguration _configuration;
@@ -17,6 +19,7 @@ public class RabbitMqPublisher
 
     public async Task PublishReviewCreatedAsync(ReviewCreatedEvent reviewEvent)
     {
+        using var activity = ActivitySource.StartActivity("review-created publish", ActivityKind.Producer);
         var factory = new ConnectionFactory
         {
             HostName = _configuration["RabbitMq:Host"] ?? "localhost",
@@ -37,9 +40,19 @@ public class RabbitMqPublisher
         var json = JsonSerializer.Serialize(reviewEvent);
         var body = Encoding.UTF8.GetBytes(json);
 
+        var properties = new BasicProperties { Headers = new Dictionary<string, object?>() };
+        if (Activity.Current is { } current)
+        {
+            properties.Headers["traceparent"] = current.Id;
+            if (current.TraceStateString is { } state)
+                properties.Headers["tracestate"] = state;
+        }
+
         await channel.BasicPublishAsync(
             exchange: string.Empty,
             routingKey: QueueName,
+            mandatory: false,
+            basicProperties: properties,
             body: body
         );
     }

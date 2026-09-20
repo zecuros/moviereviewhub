@@ -39,6 +39,10 @@ services:
     container_name: authservice
     environment:
       ASPNETCORE_URLS: http://+:8080
+      Observability__TracesEndpoint: http://jaeger:4317
+      Observability__MetricsEndpoint: http://otel-collector:4317
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
+      Jwt__Key: ${JWT_KEY:?Set JWT_KEY in .env}
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=AuthDb;Username=postgres;Password=postgres
     ports:
       - "5001:8080"
@@ -53,6 +57,9 @@ services:
     container_name: movieservice
     environment:
       ASPNETCORE_URLS: http://+:8080
+      Observability__TracesEndpoint: http://jaeger:4317
+      Observability__MetricsEndpoint: http://otel-collector:4317
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=MovieDb;Username=postgres;Password=postgres
     ports:
       - "5002:8080"
@@ -67,6 +74,9 @@ services:
     container_name: reviewservice
     environment:
       ASPNETCORE_URLS: http://+:8080
+      Observability__TracesEndpoint: http://jaeger:4317
+      Observability__MetricsEndpoint: http://otel-collector:4317
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=ReviewDb;Username=postgres;Password=postgres
       RabbitMq__Host: rabbitmq
       RabbitMq__Username: guest
@@ -86,6 +96,9 @@ services:
     container_name: watchlistservice
     environment:
       ASPNETCORE_URLS: http://+:8080
+      Observability__TracesEndpoint: http://jaeger:4317
+      Observability__MetricsEndpoint: http://otel-collector:4317
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=WatchlistDb;Username=postgres;Password=postgres
       MovieService__BaseUrl: http://movieservice:8080/
     ports:
@@ -103,6 +116,9 @@ services:
     container_name: notificationservice
     environment:
       ASPNETCORE_URLS: http://+:8080
+      Observability__TracesEndpoint: http://jaeger:4317
+      Observability__MetricsEndpoint: http://otel-collector:4317
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=NotificationDb;Username=postgres;Password=postgres
       RabbitMq__Host: rabbitmq
       RabbitMq__Username: guest
@@ -122,6 +138,9 @@ services:
     container_name: apigateway
     environment:
       ASPNETCORE_URLS: http://+:8080
+      Observability__TracesEndpoint: http://jaeger:4317
+      Observability__MetricsEndpoint: http://otel-collector:4317
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
       ReverseProxy__Clusters__auth-cluster__Destinations__auth-destination__Address: http://authservice:8080/
       ReverseProxy__Clusters__movie-cluster__Destinations__movie-destination__Address: http://movieservice:8080/
       ReverseProxy__Clusters__review-cluster__Destinations__review-destination__Address: http://reviewservice:8080/
@@ -136,5 +155,55 @@ services:
       - watchlistservice
       - notificationservice
 
+  jaeger:
+    image: jaegertracing/jaeger:2.21.0
+    ports:
+      - "127.0.0.1:16686:16686"
+      - "127.0.0.1:4317:4317"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.161.0
+    command: ["--config=/etc/otelcol/config.yml"]
+    volumes:
+      - ./docker/otel-collector/config.yml:/etc/otelcol/config.yml:ro
+    ports:
+      - "127.0.0.1:4319:4317"
+      - "127.0.0.1:8889:8889"
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  grafana:
+    image: grafana/grafana:12.1.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:
