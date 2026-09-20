@@ -1,0 +1,58 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: [CI]
+    branches: [main]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: moviereviewhub-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      vars.ENABLE_DEMO_CD == 'true'
+    runs-on: [self-hosted, linux, moviereviewhub-demo]
+    environment: demo
+    timeout-minutes: 20
+    env:
+      JWT_KEY: ${{ secrets.DEMO_JWT_KEY }}
+      GRAFANA_ADMIN_PASSWORD: ${{ secrets.DEMO_GRAFANA_ADMIN_PASSWORD }}
+      COMPOSE_PROJECT_NAME: moviereviewhub
+    steps:
+      - name: Check out the exact commit that passed CI
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Validate configuration
+        run: docker compose config --quiet
+
+      - name: Deploy demo stack
+        run: docker compose up -d --build --wait --wait-timeout 180
+
+      - name: Verify deployment
+        shell: bash
+        run: |
+          for port in 5000 5001 5002 5003 5004 5005; do
+            curl --fail --retry 20 --retry-all-errors --retry-delay 3 "http://localhost:$port/health"
+          done
+          curl --fail http://localhost:5000/movies
+          curl --fail http://localhost:16686/
+          curl --fail http://localhost:9090/-/ready
+          curl --fail http://localhost:3000/api/health
+          docker compose exec -T rabbitmq rabbitmq-diagnostics -q ping
+          docker compose exec -T postgres pg_isready -U postgres
+
+      - name: Show deployment state
+        if: always()
+        run: docker compose ps -a
